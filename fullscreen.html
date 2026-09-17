@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="app.css" />
+  <title>求职记录 · 回声Echo · AI求职助手</title>
+</head>
+<body class="fs-page">
+  <div class="tech-deco" aria-hidden="true">
+    <span class="td-sphere"></span>
+    <span class="td-ring"></span>
+    <span class="td-cube"></span>
+  </div>
+  <div class="fs-wrap">
+    <h1>记录 · 全屏编辑</h1>
+
+    <div class="fs-toolbar">
+      <button id="sortTimeBtnFs" class="tb-btn" title="按最近岗位、聊天或话术更新时间排序">🕘 最近更新 新→旧</button>
+      <div class="dropdown">
+        <button id="batchMenuBtnFs" class="tb-btn">⚡ 批量 ▾</button>
+        <div id="batchMenuFs" class="dropdown-menu hidden">
+          <div class="batch-row"><button id="selUnscoredFs">全选未评分</button><button id="batchScoreBtnFs" class="hover-action primary small">批量评分</button></div>
+          <div class="batch-row"><button id="selUngreetedFs">全选未生成</button><button id="batchGreetBtnFs" class="hover-action primary small">批量生成招呼语</button></div>
+          <div class="batch-row"><button id="selConsiderFs">全选待判断</button><button id="batchConsiderBtnFs" class="hover-action primary small">批量暂不考虑</button></div>
+          <div class="batch-row"><button id="selDupFs">全选重复项</button><button id="batchDedupBtnFs" class="hover-action primary small">批量去重</button></div>
+          <div class="batch-row"><input id="daysInputFs" type="number" min="0" placeholder="N天" class="num-input" title="输入后自动勾选 N 天前已投递的记录" /><button id="selDeliveredDaysFs">全选N天前已投递</button></div>
+          <div class="batch-row"><button id="batchRejectBtnFs" class="primary small">批量拒绝</button></div>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button id="exportMenuBtnFs" class="tb-btn">⬇ 导出 ▾</button>
+        <div id="exportMenuFs" class="dropdown-menu hidden">
+          <button id="exportFs">导出 XLS</button>
+          <button id="exportBackupFs">导出备份</button>
+          <button id="importBackupFs">导入备份</button>
+        </div>
+      </div>
+      <button id="undoBtnFs" class="tb-btn" title="没有可撤销的操作" disabled>↶ 撤销</button>
+      <button id="deleteSelBtnFs" class="tb-btn danger" title="删除已勾选的记录">🗑 删除选中</button>
+      <input type="file" id="importFileFs" class="hidden" accept="application/json,.json" />
+      <span class="grow"></span>
+      <button id="themeFabFs" class="icon-btn" title="点击切换主题" aria-label="切换主题"><span class="theme-emoji">🎨</span><svg class="pal-ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><defs><linearGradient id="palG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9be8cd"/><stop offset="1" stop-color="#2fae8e"/></linearGradient></defs><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8z" fill="url(#palG)" fill-opacity=".82" stroke="rgba(255,255,255,.95)" stroke-width="1.1"/><ellipse cx="9.2" cy="7.2" rx="4.2" ry="2.6" fill="rgba(255,255,255,.5)"/><circle cx="6.5" cy="10.5" r="1.5" fill="rgba(255,255,255,.92)"/><circle cx="9.5" cy="6.5" r="1.5" fill="rgba(255,255,255,.75)"/><circle cx="14.5" cy="6.5" r="1.5" fill="rgba(255,255,255,.6)"/><circle cx="17.5" cy="10.5" r="1.5" fill="rgba(255,255,255,.85)"/></svg></button>
+      <button id="closeFs" class="tb-btn">关闭</button>
+      <span id="fsStatus" class="fs-status"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table id="fsTable" class="rec-table">
+        <thead><tr>
+          <th class="col-check">
+            <button id="selMenuBtnFs" class="sel-menu-btn" title="全选 / 取消全选">▾</button>
+            <div id="selMenuFs" class="dropdown-menu hidden">
+              <button id="selAllBtnFs">全选</button>
+              <button id="selNoneBtnFs">取消全选</button>
+            </div>
+          </th>
+          <th class="col-idx">#</th>
+          <th data-sort="title" class="searchable" title="双击搜索此列">岗位名称</th>
+          <th data-sort="company" class="searchable" title="双击搜索此列">公司</th>
+          <th data-sort="location" class="sortable">地点</th>
+          <th data-sort="salary" class="sortable">薪资</th>
+          <th data-sort="size" class="sortable">规模</th>
+          <th data-sort="status" class="sortable">沟通</th>
+          <th>判断</th>
+          <th data-sort="overall" class="sortable">评分</th>
+          <th data-sort="hrActive" class="sortable">HR活跃</th>
+          <th>备注</th><th>打招呼语</th><th>JD</th><th data-sort="platform" class="sortable" title="点击按平台排序">来源/平台</th><th>模拟面试</th>
+        </tr></thead>
+        <tbody id="fsBody"></tbody>
+      </table>
+    </div>
+    <p id="fsEmpty" class="empty" hidden></p>
+  </div>
+
+  <!-- 模拟面试弹窗 -->
+  <div id="mockModalFs" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head"><span>🎤 15 题模拟面试</span><button id="mockCloseFs" class="icon-btn" title="关闭模拟面试" aria-label="关闭模拟面试">✕</button></div>
+      <div id="mockBodyFs" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="agent-core.js"></script>
+  <script src="record-client.js"></script>
+  <script src="fullscreen.js"></script>
+</body>
+</html>

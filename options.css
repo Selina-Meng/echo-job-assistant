@@ -1,0 +1,88 @@
+/* 设置页样式：复用 app.css 的 [data-theme] 主题变量（light=动森 / tech=科技风玻璃）。皮肤选项仅用色块（无文字），靠 aria-label 区分。 */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: Nunito, 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px; font-weight: 500; line-height: 1.6;
+  color: var(--text); background: var(--bg);
+  padding: 24px 20px;
+  transition: background-color .2s ease, color .2s ease;
+  max-width: none; min-width: 0;
+}
+main { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; }
+.settings-layout { display: grid; grid-template-columns: 170px minmax(0,1fr); gap: 24px; align-items: start; }
+.settings-nav { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 20px; padding: 10px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+.settings-nav a { color: var(--text); padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700; }
+.settings-nav a[aria-current="page"] { color: white; background: var(--brand); }
+.settings-nav a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.settings-content { min-width: 0; }
+[data-setting-panel][hidden] { display: none !important; }
+.settings-content > .actions { position: sticky; bottom: 0; z-index: 2; flex-wrap: wrap; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.settings-content > .actions .hint { margin: 0; }
+@media (max-width: 640px) {
+  body { padding: 12px; }
+  .settings-layout { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .settings-nav { flex-direction: row; overflow-x: auto; position: static; }
+  .settings-nav a { flex: 0 0 auto; padding: 8px 12px; }
+}
+h1 { font-size: 22px; margin: 4px 0 16px; color: var(--text); }
+h2 { font-size: 15px; margin: 20px 0 8px; color: var(--brand); }
+
+section {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 16px 18px; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.hint { font-size: 12px; color: var(--text-2); margin: 0 0 8px; line-height: 1.6; }
+.hint b { color: var(--danger); }
+input[type="text"], input[type="password"], textarea {
+  width: 100%; padding: 10px 14px; border: 2px solid var(--border); border-radius: 14px;
+  font-size: 13px; font-family: inherit; font-weight: 500; color: var(--text); background: var(--input-bg);
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--focus-ring); }
+textarea { resize: vertical; line-height: 1.5; }
+.kv { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.kv label { font-size: 12px; color: var(--text-2); }
+.chk { display: flex; align-items: center; gap: 6px; font-size: 13px; margin: 8px 0; color: var(--text); }
+.actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+/* 主按钮沿用 app.css 的胶囊 + 品牌色（随皮肤变化） */
+button.small { padding: 6px 12px; font-size: 12px; }
+.status { font-size: 12px; color: var(--success); }
+.status.warning { color: var(--danger); }
+
+/* ===== 皮肤选择器 ===== */
+.theme-row { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; flex-wrap: wrap; }
+.theme-label { font-size: 13px; color: var(--text-2); font-weight: 600; }
+.theme-chip {
+  width: 30px; height: 30px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--border); background: var(--surface-2);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  position: relative;
+}
+.theme-chip:hover { transform: translateY(-1px); }
+.theme-chip.active { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand); }
+.theme-chip.sw-light { background: linear-gradient(135deg,#f7f3df 0%,#19c8b9 100%); }
+.theme-chip.sw-tech  { background: linear-gradient(135deg,#6fd6b4 0%,#2fae8e 100%); }
+
+/* ===== 科技风（玻璃拟态，对应 app.css 的 data-theme="tech"）===== */
+[data-theme="tech"] body { position: relative; }
+[data-theme="tech"] main { position: relative; z-index: 1; }
+[data-theme="tech"] section {
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.7);
+  box-shadow: 0 10px 30px rgba(80,90,140,.16);
+  position: relative; z-index: 1;
+}
+[data-theme="tech"] h2 { color: var(--brand); }
+[data-theme="tech"] input[type="text"],
+[data-theme="tech"] input[type="password"],
+[data-theme="tech"] textarea {
+  background: rgba(255,255,255,.6); border-color: rgba(255,255,255,.7);
+  backdrop-filter: blur(6px);
+}
+[data-theme="tech"] .theme-chip { background: rgba(255,255,255,.5); border-color: rgba(255,255,255,.7); backdrop-filter: blur(6px); }
+[data-theme="tech"] .theme-chip.active { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand); }

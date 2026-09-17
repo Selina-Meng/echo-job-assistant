@@ -1,0 +1,1 @@
+(() => {const root=document.documentElement;root.style.visibility='hidden';const show=()=>{root.style.visibility='';};const timeout=setTimeout(show,1200);try{chrome.storage.local.get(['uiState'],d=>{const t=d?.uiState?.theme;if(['light','tech'].includes(t))root.setAttribute('data-theme',t);clearTimeout(timeout);show();});}catch(_){clearTimeout(timeout);show();}})();

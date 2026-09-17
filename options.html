@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="options.css" />
+  <title>回声Echo · AI求职助手 · 设置</title>
+</head>
+<body>
+  <!-- 玻璃拟态装饰层（仅科技风显示）-->
+  <div class="tech-deco" aria-hidden="true">
+    <span class="td-sphere"></span>
+    <span class="td-ring"></span>
+    <span class="td-cube"></span>
+  </div>
+
+  <main>
+    <h1>回声Echo · AI求职助手 · 设置</h1>
+    <section aria-label="新手引导">
+      <button id="restartOnboarding" type="button">重新体验新手引导</button>
+      <p class="hint">重新按步骤了解使用流程，保留已有设置、岗位和历史记录。</p>
+      <p id="restartOnboardingStatus" role="status"></p>
+    </section>
+
+
+
+    <div class="settings-layout"><nav class="settings-nav" aria-label="设置分类"><a href="#profile" data-setting-link="profile" aria-current="page">个人档案</a><a href="#ai" data-setting-link="ai">AI与授权</a><a href="#greeting" data-setting-link="greeting">话术设置</a><a href="#research" data-setting-link="research">联网测试</a><a href="#data" data-setting-link="data">备份与同步</a><a href="#appearance" data-setting-link="appearance">界面外观</a></nav><div class="settings-content">
+    <section data-setting-panel="ai" hidden><h2>DeepSeek API Key</h2>
+      <p class="hint">用于生成话术 / 评分 / 画像 / 总结。仅存本地浏览器。申请：platform.deepseek.com</p>
+      <input id="apiKey" type="password" placeholder="sk-..." />
+    </section>
+
+    <section data-setting-panel="research" hidden><h2>联网取证测试</h2>
+      <p class="hint">当前 DeepSeek Responses API 不支持内置联网搜索。已暂停无效搜索请求，不消耗搜索测试 Token；岗位资料分析照常进行，外部交通、配套等信息保留待确认。</p>
+      <label for="researchAddress">实际办公地址（搜索暂停，暂不提交）</label>
+      <input id="researchAddress" disabled value="广州-白云区白云机场综合服务大楼2区" maxlength="300" />
+      <button id="researchProbe" type="button">查看联网能力</button>
+      <pre id="researchProbeResult" style="white-space:pre-wrap;overflow-wrap:anywhere" role="status"></pre>
+    </section>
+    <section data-setting-panel="ai" hidden><h2>百度 OCR（图片转文字）</h2>
+      <p class="hint">用于「截图 JD → 图片转文字」。百度智能云开通「文字识别」后获取。仅本地保存。</p>
+      <div class="kv"><label>API Key</label><input id="ocrApiKey" type="text" placeholder="百度 OCR API Key" /></div>
+      <div class="kv"><label>Secret Key</label><input id="ocrSecretKey" type="text" placeholder="百度 OCR Secret Key" /></div>
+    </section>
+
+    <section data-setting-panel="ai" hidden><h2>外部 AI 与隐私</h2>
+      <p class="hint">岗位记录、聊天分析、个人档案、设置和 API Key 默认保存在本地浏览器。扩展默认不外发数据；启用后，相关功能会把必要的个人档案、JD、聊天文本或所选截图发送给对应服务处理。</p>
+      <label class="chk"><input id="deepseekConsent" type="checkbox" /> 允许向 DeepSeek 发送必要文本，用于话术、评分、聊天分析、画像、总结和模拟面试</label>
+      <label class="chk"><input id="ocrConsent" type="checkbox" /> 允许向百度 OCR 发送我主动选择的 JD 截图</label>
+    </section>
+
+    <section data-setting-panel="profile"><h2>个人能力档案</h2>
+      <p class="hint">越具体，生成越对口。建议含：技术栈/核心技能、学历、2-3 个代表性项目或亮点、期望方向。</p>
+      <textarea id="profile" rows="10" placeholder="例如：&#10;- 技能：Python、数据分析、SQL、PyTorch&#10;- 学历：本科 计算机&#10;- 亮点：主导用户增长项目 DAU+18%"></textarea>
+    </section>
+
+    <section data-setting-panel="greeting" hidden><h2>打招呼语 Prompt（高级）</h2>
+      <p class="hint">自定义生成「打招呼语」的系统提示词。可增删要点、调整语气与长度要求；结尾需保持输出 JSON（含 matchPoints / greeting / keywords）。留空则使用默认提示。</p>
+      <textarea id="greetingPrompt" rows="10" placeholder="自定义打招呼语生成提示词…"></textarea>
+    </section>
+
+    <section data-setting-panel="profile"><h2>文档导入（补充个人档案）</h2>
+      <p class="hint">支持 .txt / .csv / .md / 制表符文本（如从 Excel 复制后粘贴）。<b>真正的 .xls 二进制请用 Excel「另存为 CSV」再导入</b>；下方粘贴区可直接粘贴表格文本（每行一条，Tab 或逗号分隔）。导入内容会作为补充条目追加到档案。</p>
+      <div class="kv"><label>选择文件</label><input id="docFile" type="file" accept=".txt,.csv,.md,.text,text/plain,text/csv" /></div>
+      <textarea id="docPaste" rows="5" placeholder="在此粘贴从表格复制的文本（每行一条）…"></textarea>
+      <button id="docImportBtn" class="primary small">解析并追加到档案</button>
+      <div id="docStatus" class="status"></div>
+    </section>
+
+    <section data-setting-panel="data" hidden><h2>自动备份</h2>
+      <p class="hint">每 5 分钟把求职数据备份为 JSON，并覆盖当天文件。API Key 会脱敏，百度临时 Token 和上次备份不会写入文件；导入时保留当前浏览器中的真实 Key。</p>
+      <label class="chk"><input id="autoBackup" type="checkbox" /> 启用每 5 分钟自动备份</label>
+      <div class="kv"><label>备份子目录名</label><input id="backupFolder" type="text" placeholder="ai-job-backup" /></div>
+    </section>
+
+    <section data-setting-panel="data" hidden><h2>手机访问 · 本机同步</h2>
+      <p class="hint">将全部已收集岗位、聊天、档案和总结同步到这台电脑的个人服务，不上传到开发者服务器。模型 Key 不同步。首次同步前自动保留业务备份。</p>
+      <label class="chk"><input id="mobileEnabled" type="checkbox" /> 开启全部业务数据的本机同步</label>
+      <label for="mobileToken">电脑服务生成的插件同步凭据</label>
+      <input id="mobileToken" type="password" autocomplete="off" />
+      <button id="mobileConnect" type="button">保存并立即同步</button>
+      <button id="mobileBackup" type="button">导出首次同步前备份</button>
+      <p id="mobileStatus" role="status" class="hint"></p>
+    </section>
+    <section data-setting-panel="appearance" hidden><h2>界面外观</h2>    <div class="theme-row" id="themeRow">
+      <span class="theme-label">界面皮肤</span>
+      <button class="theme-chip sw-light" data-theme="light" type="button" aria-label="动森" title="动森"></button>
+      <button class="theme-chip sw-tech" data-theme="tech" type="button" aria-label="科技风" title="科技风"></button>
+    </div>
+    <p class="hint">回声 Echo · Selina-Meng。原创程序采用 <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener noreferrer">PolyForm Noncommercial 1.0.0</a>，请保留来源署名；原创文档与视觉采用 CC BY-NC 4.0。第三方内容保留原许可。</p>
+    <p class="hint">动森风格的设计 token 参考 <a href="https://github.com/guokaigdg/animal-island-ui" target="_blank" rel="noopener noreferrer">animal-island-ui · guokaigdg</a>，按 <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 使用。Echo 对配色、布局和组件样式作了适配；原作者未为本产品背书。</p>
+    </section>
+    <div class="actions">
+      <button id="saveBtn" class="primary">保存设置</button><span class="hint">切换分类保留输入，修改后请保存。</span>
+      <span id="status" class="status" role="status"></span>
+    </div>
+    </div></div>
+  </main>
+  <script src="options.js"></script>
+  <script src="mobile-options.js"></script>
+</body>
+</html>

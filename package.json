@@ -1,0 +1,9 @@
+{
+  "name": "echo-job-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first job-search content workflow extension",
+  "scripts": {
+    "test": "node tests/run.cjs"
+  }
+}
