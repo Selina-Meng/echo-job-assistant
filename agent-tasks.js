@@ -18,7 +18,7 @@ globalThis.AgentTasks = function (dependencies) {
   };
   const taskResults=(task,records)=>task?.resultIds?.length?task.resultIds:[...new Set((records||[]).filter(r=>task?.kind==='discover'&&task.startedAt&&Math.max(r.lastJobScanAt||0,r.availability?.at||0)>=task.startedAt).map(r=>r.id))];
   let queue = Promise.resolve(), controlQueue=Promise.resolve(), running = false;
-  let storageCompacted=false,classificationChecked=false,identityChecked=false;
+  let storageCompacted=false,identityChecked=false;
   function lock(fn) {
     if (globalThis.navigator && navigator.locks) return navigator.locks.request('ai-job-assistant-records', fn);
     const next = queue.then(fn,fn); queue = next.catch(() => {}); return next;
@@ -42,19 +42,6 @@ globalThis.AgentTasks = function (dependencies) {
   }
   async function compactStorage(){
     if(!storageCompacted)await lock(async()=>{const d=await get(['legacyDataBackup','records','conversations','dailySummaries','profiles','dismissedJobKeys','agentConfig','agentNeedsDraft','agentRuleHistory']);if(!d.legacyDataBackup){delete d.legacyDataBackup;await set({legacyDataBackup:{at:Date.now(),version:1,data:d}});}});
-    if(!classificationChecked)await lock(async()=>{
-      const d=await get(['agentConfig','records','agentNeedsDraft','agentRuleHistory']),cfg=C.validateConfig(d.agentConfig||{});
-      if(cfg.confirmedClassification==='2026-09-09'){classificationChecked=true;return;}
-      // User-confirmed correction of these exact legacy requirements; later edits remain untouched.
-      const moves=[['核心城区','广州天河区/越秀区；深圳福田区/南山区','广州天河区/越秀区；深圳福田区/南山区','hardRequirements','softPreferences'],['无行业偏好','无特别偏好','不限制行业，但排除制造业及汽车等不相关领域','softPreferences','hardRequirements']];
-      let changed=false;
-      const patch={hardRequirements:[...cfg.hardRequirements],softPreferences:[...cfg.softPreferences]};
-      for(const [label,sourceQuote,meaning,from,to] of moves){const index=patch[from].findIndex(p=>p.label===label&&p.sourceQuote===sourceQuote&&p.meaning===meaning);if(index<0)continue;const [tag]=patch[from].splice(index,1);if(!patch[to].some(p=>p.label===label&&p.sourceQuote===sourceQuote))patch[to].push(to==='softPreferences'?{...tag,confirmed:true,version:2}:tag);changed=true;}
-      if(changed){const changes=configChanges(d,{...patch,ruleVersion:cfg.ruleVersion+1,confirmedClassification:'2026-09-09'}),next=changes.agentConfig;
-        await set({...changes,agentRuleHistory:[...(d.agentRuleHistory||[]),{version:cfg.ruleVersion,at:Date.now(),softText:cfg.softText,hardRequirements:cfg.hardRequirements,softPreferences:cfg.softPreferences}].slice(-20),agentNeedsDraft:{...(d.agentNeedsDraft||{}),transcript:next.softText,questions:[],preferences:next.softPreferences,hardRequirements:next.hardRequirements,previousPreferences:next.softPreferences,previousHardRequirements:next.hardRequirements,confirmedAt:Date.now()}});
-      }
-      classificationChecked=true;
-    });
     if(!identityChecked)await lock(async()=>{
       const d=await get(['records','conversations','legacyDataBackup']),records=d.records||[],items=d.conversations||[];
       let changed=C.mergeConversationDuplicates(records,items);
